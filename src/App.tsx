@@ -11,6 +11,7 @@ import Activate from "./pages/Activate.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Tasks from "./pages/Tasks.tsx";
 import TaskDetail from "./pages/TaskDetail.tsx";
+import ScrollToTop from "./components/ScrollToTop.tsx";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
