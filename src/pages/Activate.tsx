@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,9 @@ import { Loader2 } from "lucide-react";
 
 const Activate = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const reason = searchParams.get("reason");
   const [profile, setProfile] = useState<any>(null);
   const [phone, setPhone] = useState("");
   const [fee, setFee] = useState(50);
@@ -25,7 +28,7 @@ const Activate = () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
       setProfile(p);
       setPhone(p?.phone || "");
-      if (p?.account_status === "active") navigate("/dashboard");
+      if (p?.account_status === "active") navigate(redirectTo);
       const { data: s } = await supabase.from("app_settings").select("value").eq("key", "activation_fee").maybeSingle();
       if (s?.value) setFee(Number(s.value));
     })();
@@ -39,7 +42,7 @@ const Activate = () => {
       if (tx?.status === "success") {
         toast.success("Payment confirmed! Account activated.");
         clearInterval(interval);
-        navigate("/dashboard");
+        navigate(redirectTo);
       } else if (tx?.status === "failed") {
         toast.error("Payment failed or was cancelled.");
         clearInterval(interval);
@@ -75,10 +78,10 @@ const Activate = () => {
         <div className="w-full max-w-xl rounded-2xl border border-primary/20 bg-card/70 p-8 shadow-card">
           <h1 className="text-3xl font-black">Activate Your Tasking Account</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Hello, <span className="font-bold text-foreground">{profile?.full_name?.toUpperCase() || "USER"}</span>. To access{" "}
-            <strong className="text-foreground">Start Tasking</strong>,{" "}
-            <strong className="text-foreground">View Tasks</strong>, and{" "}
-            <strong className="text-foreground">Bid on Tasks</strong>, you must activate your account.
+            Hello, <span className="font-bold text-foreground">{profile?.full_name?.toUpperCase() || "USER"}</span>.{" "}
+            {reason === "bid"
+              ? <>Before you can <strong className="text-foreground">bid on this task</strong>, you must activate your tasking account.</>
+              : <>To <strong className="text-foreground">start tasking</strong> and <strong className="text-foreground">bid on tasks</strong>, you must activate your account.</>}
           </p>
 
           <div className="mt-6 rounded-xl border border-primary/30 bg-secondary/40 p-5">

@@ -71,6 +71,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          budget: number
+          category: string
+          created_at: string
+          currency: string
+          description: string
+          due_date: string | null
+          id: string
+          poster_country: string | null
+          poster_id: string | null
+          poster_name: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget: number
+          category?: string
+          created_at?: string
+          currency?: string
+          description: string
+          due_date?: string | null
+          id?: string
+          poster_country?: string | null
+          poster_id?: string | null
+          poster_name: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          poster_country?: string | null
+          poster_id?: string | null
+          poster_name?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number

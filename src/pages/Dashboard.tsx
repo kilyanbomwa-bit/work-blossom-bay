@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+interface Task {
+  id: string;
+  title: string;
+  poster_name: string;
+  budget: number;
+  currency: string;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,14 +27,15 @@ const Dashboard = () => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/login"); return; }
-      const [{ data: p }, { data: w }] = await Promise.all([
+      const [{ data: p }, { data: w }, { data: t }] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("wallets").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("tasks").select("id,title,poster_name,budget,currency,created_at").eq("status", "open").order("created_at", { ascending: false }).limit(8),
       ]);
       setProfile(p);
       setWallet(w);
+      setTasks((t as Task[]) || []);
       setLoading(false);
-      if (p?.account_status !== "active") navigate("/activate");
     })();
   }, [navigate]);
 
@@ -34,7 +45,17 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  const handleStartTasking = () => {
+    if (profile?.account_status !== "active") {
+      navigate("/activate?reason=start");
+    } else {
+      toast.info("Browse tasks below and click View / Bid to begin.");
+    }
+  };
+
   if (loading) return <div className="flex min-h-screen items-center justify-center">Loading…</div>;
+
+  const memberYear = profile?.created_at ? new Date(profile.created_at).getFullYear() : new Date().getFullYear();
 
   return (
     <div className="min-h-screen">
@@ -46,8 +67,8 @@ const Dashboard = () => {
             <p className="mt-2 text-muted-foreground">Welcome back. Quick overview of your activity.</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="hero" disabled>Start Tasking</Button>
-            <Button variant="glow" disabled>Post Task</Button>
+            <Button variant="hero" onClick={handleStartTasking}>Start Tasking</Button>
+            <Button variant="glow" onClick={() => toast.info("Task posting opens in phase 2.")}>Post Task</Button>
           </div>
         </div>
 
@@ -58,7 +79,8 @@ const Dashboard = () => {
             </div>
             <h2 className="mt-4 text-center text-xl font-bold">{profile?.full_name?.toUpperCase()}</h2>
             <p className="text-center text-sm text-muted-foreground">{profile?.email}</p>
-            <p className="text-center text-sm text-muted-foreground">{profile?.country}</p>
+            <p className="text-center text-sm text-muted-foreground">{profile?.country || "Kenya"}</p>
+            <p className="text-center text-sm text-muted-foreground">Member since: {memberYear}</p>
 
             <div className="mt-6 grid grid-cols-3 gap-2 text-center">
               <div className="rounded-lg bg-secondary/50 p-3"><p className="text-2xl font-black">0</p><p className="text-xs text-muted-foreground">Tasks Posted</p></div>
@@ -83,7 +105,34 @@ const Dashboard = () => {
             <div className="rounded-2xl border border-primary/20 bg-card/70 p-6">
               <h2 className="text-2xl font-bold">Active Tasks</h2>
               <p className="mt-1 text-sm text-muted-foreground">Latest tasks open for bidding</p>
-              <p className="mt-6 text-sm text-muted-foreground">Task marketplace launches in phase 2 — stay tuned!</p>
+
+              <div className="mt-6 space-y-4">
+                {tasks.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No active tasks right now. Check back soon.</p>
+                )}
+                {tasks.map((t) => (
+                  <div key={t.id} className="flex flex-col gap-3 rounded-xl border border-primary/10 bg-secondary/30 p-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-bold leading-snug">{t.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        By {t.poster_name} • Posted {new Date(t.created_at).toLocaleDateString("en-KE", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="font-black text-primary">{t.currency} {Number(t.budget).toLocaleString()}</span>
+                      <Button asChild variant="hero" size="sm">
+                        <Link to={`/tasks/${t.id}`}>View / Bid</Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 text-center">
+                <Button asChild variant="glow">
+                  <Link to="/tasks">View All Tasks</Link>
+                </Button>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-primary/20 bg-card/70 p-6">
