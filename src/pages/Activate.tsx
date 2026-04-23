@@ -16,7 +16,7 @@ const Activate = () => {
   const reason = searchParams.get("reason");
   const [profile, setProfile] = useState<any>(null);
   const [phone, setPhone] = useState("");
-  const [fee, setFee] = useState(50);
+  const [fee, setFee] = useState(200);
   const [loading, setLoading] = useState(false);
   const [waiting, setWaiting] = useState<string | null>(null); // tx id
 
