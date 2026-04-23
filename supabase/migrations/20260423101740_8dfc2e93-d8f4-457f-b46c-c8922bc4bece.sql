@@ -1,0 +1,1 @@
+UPDATE public.app_settings SET value = '200'::jsonb, updated_at = now() WHERE key = 'activation_fee';
