@@ -51,8 +51,8 @@ const Register = () => {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created! Activate to start tasking.");
-    navigate("/activate");
+    toast.success("Account created! Welcome to SWAS Tasks.");
+    navigate("/dashboard");
   };
 
   return (
