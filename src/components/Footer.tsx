@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Facebook, Instagram, Send } from "lucide-react";
+import { Mail, Send } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 export const Footer = () => {
@@ -50,10 +50,7 @@ export const Footer = () => {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <a href="#" className="flex items-center gap-2 rounded-full bg-[#1877f2] px-4 py-2 text-xs font-bold text-white"><Facebook className="h-4 w-4" /> Facebook</a>
-          <a href="#" className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#f09433] via-[#e6683c] to-[#bc1888] px-4 py-2 text-xs font-bold text-white"><Instagram className="h-4 w-4" /> Instagram</a>
-          <a href="#" className="flex items-center gap-2 rounded-full bg-black px-4 py-2 text-xs font-bold text-white">TikTok</a>
-          <a href="#" className="flex items-center gap-2 rounded-full bg-[#229ed9] px-4 py-2 text-xs font-bold text-white"><Send className="h-4 w-4" /> Telegram</a>
+          <a href="#" className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"><Send className="h-4 w-4" /> Telegram</a>
         </div>
 
         <div className="mt-8 border-t border-border/50 pt-6 text-center text-sm text-muted-foreground">
