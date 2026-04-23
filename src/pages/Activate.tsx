@@ -90,6 +90,13 @@ const Activate = () => {
             </p>
           </div>
 
+          <div className="mt-4 rounded-xl border border-amber-400/40 bg-amber-500/10 p-5">
+            <p className="text-sm leading-relaxed text-amber-200">
+              Kindly complete the one-time access fee to secure full ownership of your <strong>SwasTasks</strong> account,
+              enable seamless system integration, and ensure withdrawals are processed securely to your registered payment number.
+            </p>
+          </div>
+
           {waiting ? (
             <div className="mt-8 flex flex-col items-center gap-4 py-8">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
