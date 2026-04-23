@@ -1,1 +1,7 @@
 project_id = "ytcxgejgsjbitoqegefv"
+
+[functions.lipwa-stk-push]
+verify_jwt = false
+
+[functions.lipwa-callback]
+verify_jwt = false
