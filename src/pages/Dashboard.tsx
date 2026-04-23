@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -21,6 +22,12 @@ const Dashboard = () => {
   const [wallet, setWallet] = useState<any>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [withdrawMethod, setWithdrawMethod] = useState<"mpesa" | "paypal">("mpesa");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawFullName, setWithdrawFullName] = useState("");
+  const [withdrawPhone, setWithdrawPhone] = useState("");
+  const [withdrawEmail, setWithdrawEmail] = useState("");
 
   useEffect(() => {
     document.title = "Dashboard | SWAS Tasks";
@@ -53,6 +60,36 @@ const Dashboard = () => {
     }
   };
 
+  const submitWithdrawal = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const balance = Number(wallet?.balance ?? 0);
+    const amount = Number(withdrawAmount);
+
+    if (balance <= 0) {
+      toast.error("Your balance must be above 0 before withdrawing.");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("Enter a withdrawal amount above 0.");
+      return;
+    }
+    if (amount > balance) {
+      toast.error("Withdrawal amount cannot be above your balance.");
+      return;
+    }
+    if (withdrawMethod === "mpesa" && (!withdrawFullName.trim() || !withdrawPhone.trim())) {
+      toast.error("Enter your full name and M-Pesa number.");
+      return;
+    }
+    if (withdrawMethod === "paypal" && !/^\S+@\S+\.\S+$/.test(withdrawEmail.trim())) {
+      toast.error("Enter a valid PayPal email.");
+      return;
+    }
+
+    toast.success("Withdrawal request submitted for review.");
+    setShowWithdraw(false);
+  };
+
   if (loading) return <div className="flex min-h-screen items-center justify-center">Loading…</div>;
 
   const memberYear = profile?.created_at ? new Date(profile.created_at).getFullYear() : new Date().getFullYear();
@@ -83,7 +120,7 @@ const Dashboard = () => {
             <p className="text-center text-sm text-muted-foreground">Member since: {memberYear}</p>
 
             <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-lg bg-secondary/50 p-3"><p className="text-2xl font-black">0</p><p className="text-xs text-muted-foreground">Tasks Posted</p></div>
+              <div className="rounded-lg bg-secondary/50 p-3"><p className="text-2xl font-black">826</p><p className="text-xs text-muted-foreground">Tasks Posted</p></div>
               <div className="rounded-lg bg-secondary/50 p-3"><p className="text-2xl font-black">0</p><p className="text-xs text-muted-foreground">Tasks Completed</p></div>
               <div className="rounded-lg bg-secondary/50 p-3"><p className="text-2xl font-black">0</p><p className="text-xs text-muted-foreground">Bids Made</p></div>
             </div>
@@ -91,6 +128,36 @@ const Dashboard = () => {
             <div className="mt-6 rounded-xl bg-gradient-brand py-3 text-center font-bold text-primary-foreground">
               Balance: KES {Number(wallet?.balance ?? 0).toFixed(2)}
             </div>
+
+            <Button onClick={() => setShowWithdraw(true)} variant="glow" className="mt-4 w-full">Withdraw</Button>
+
+            {showWithdraw && (
+              <form onSubmit={submitWithdrawal} className="mt-4 space-y-4 rounded-xl border border-primary/20 bg-secondary/30 p-4">
+                <div>
+                  <p className="text-sm font-bold">Withdrawal method</p>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <Button type="button" variant={withdrawMethod === "mpesa" ? "hero" : "outline"} size="sm" onClick={() => setWithdrawMethod("mpesa")}>M-Pesa</Button>
+                    <Button type="button" variant={withdrawMethod === "paypal" ? "hero" : "outline"} size="sm" onClick={() => setWithdrawMethod("paypal")}>PayPal</Button>
+                  </div>
+                </div>
+
+                <Input type="number" min="1" step="1" placeholder="Amount" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
+
+                {withdrawMethod === "mpesa" ? (
+                  <>
+                    <Input placeholder="Full name" value={withdrawFullName} onChange={(e) => setWithdrawFullName(e.target.value)} />
+                    <Input type="tel" placeholder="M-Pesa number" value={withdrawPhone} onChange={(e) => setWithdrawPhone(e.target.value)} />
+                  </>
+                ) : (
+                  <Input type="email" placeholder="PayPal email" value={withdrawEmail} onChange={(e) => setWithdrawEmail(e.target.value)} />
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button type="button" variant="outline" onClick={() => setShowWithdraw(false)}>Cancel</Button>
+                  <Button type="submit" variant="hero">Submit</Button>
+                </div>
+              </form>
+            )}
 
             <Button onClick={logout} variant="destructive" className="mt-4 w-full">Logout</Button>
           </div>
