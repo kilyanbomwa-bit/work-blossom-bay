@@ -9,6 +9,8 @@ import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Activate from "./pages/Activate.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import Tasks from "./pages/Tasks.tsx";
+import TaskDetail from "./pages/TaskDetail.tsx";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/activate" element={<Activate />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/tasks/:id" element={<TaskDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
